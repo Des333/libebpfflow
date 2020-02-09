@@ -1,0 +1,43 @@
+version: '3'
+services:
+  ebpf:
+    build: debian-ebpf
+    container_name: "ebpf"
+    privileged: true
+    networks:
+      - ebpf-net
+    volumes:
+      - "/sys/kernel/debug:/sys/kernel/debug"
+
+
+  iperf-tcp-client:
+    build: debian-iperf
+    container_name: "iperf-tcp-client"
+    command: "bash -c 'sleep 5 && iperf -c iperf-tcp-server'"
+    networks:
+      - ebpf-net
+
+  iperf-tcp-server:
+    build: debian-iperf
+    container_name: "iperf-tcp-server"
+    networks:
+      - ebpf-net
+
+
+  iperf-udp-client:
+    build: debian-iperf
+    container_name: "iperf-udp-client"
+    command: "bash -c 'sleep 5 && iperf -u -b 500M -c iperf-udp-server'"
+    networks:
+      - ebpf-net
+
+  iperf-udp-server:
+    build: debian-iperf
+    container_name: "iperf-udp-server"
+    command: "iperf -u -s"
+    networks:
+      - ebpf-net
+
+networks:
+  ebpf-net:
+
